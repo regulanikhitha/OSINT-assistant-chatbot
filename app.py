@@ -1,9 +1,20 @@
 from flask import Flask, render_template, request, jsonify
+import os
 import google.generativeai as genai
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
-genai.configure(api_key="AIzaSyA9C0ooLJBUOjYCokv-BkQfBPI9JlY-aFc")
+api_key = os.environ.get("GOOGLE_API_KEY")
+if api_key:
+    genai.configure(api_key=api_key)
+else:
+    # If not set, warn in logs — API calls will fail until configured.
+    # This avoids committing hardcoded keys in source.
+    app = Flask(__name__)
+    app.logger.warning("GOOGLE_API_KEY not set; generative API calls will fail until configured.")
 
 model = genai.GenerativeModel("gemini-2.5-flash")
 
